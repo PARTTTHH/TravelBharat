@@ -141,3 +141,31 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Python / Django
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Django
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+*.log
+
+# Environment
+.env
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
