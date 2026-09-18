@@ -27,7 +27,7 @@ _Unified Mentor Internship Project • Built with Django, PostgreSQL, React (Vit
 > • **Frontend Web Application**: [https://travel-bharat-theta-five.vercel.app](https://travel-bharat-theta-five.vercel.app)  
 > • **Backend REST API**: [https://travelbharat-backend-upcp.onrender.com/api/](https://travelbharat-backend-upcp.onrender.com/api/)  
 > • **Database**: Managed Cloud PostgreSQL (Render)  
-> • **Admin Credentials**: `admin` / `admin123`
+> • **Admin Dashboard**: [https://travel-bharat-theta-five.vercel.app/admin/dashboard](https://travel-bharat-theta-five.vercel.app/admin/dashboard)
 
 ---
 
@@ -51,7 +51,7 @@ _Unified Mentor Internship Project • Built with Django, PostgreSQL, React (Vit
 | **Frontend Web Application** | **Vercel** (Edge CDN) | [travel-bharat-theta-five.vercel.app](https://travel-bharat-theta-five.vercel.app/) | ![Active](https://img.shields.io/badge/Status-Live-success?style=flat-square) |
 | **Backend REST API** | **Render** (Gunicorn WSGI) | [travelbharat-backend-upcp.onrender.com/api/](https://travelbharat-backend-upcp.onrender.com/api/) | ![Active](https://img.shields.io/badge/Status-Live-success?style=flat-square) |
 | **Cloud Database** | **Render PostgreSQL 16** | Managed Cloud DB Instance | ![Active](https://img.shields.io/badge/Status-Connected-blue?style=flat-square) |
-| **Admin Moderation Panel** | React SPA / Django | [travel-bharat-theta-five.vercel.app/admin/dashboard](https://travel-bharat-theta-five.vercel.app/admin/dashboard) | `admin` / `admin123` |
+| **Admin Moderation Panel** | React SPA / Django | [travel-bharat-theta-five.vercel.app/admin/dashboard](https://travel-bharat-theta-five.vercel.app/admin/dashboard) | Secured (Staff Only) |
 
 ---
 
