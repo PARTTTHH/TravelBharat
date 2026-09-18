@@ -6,6 +6,7 @@ from .models import Category, City, PlaceImage, State, TouristPlace
 class PlaceImageInline(admin.TabularInline):
     model = PlaceImage
     extra = 1
+    fields = ("image", "image_url", "caption", "is_primary", "order")
 
 
 @admin.register(Category)
@@ -40,8 +41,11 @@ class TouristPlaceAdmin(admin.ModelAdmin):
         "is_verified",
         "updated_at",
     )
+    list_editable = ("is_featured", "is_verified")
     list_filter = ("state", "categories", "is_featured", "is_verified")
     search_fields = ("name", "description", "state__name", "city__name")
     prepopulated_fields = {"slug": ("name",)}
     filter_horizontal = ("categories",)
+    readonly_fields = ("created_at", "updated_at")
     inlines = [PlaceImageInline]
+

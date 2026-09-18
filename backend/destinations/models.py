@@ -6,8 +6,11 @@ class Category(models.Model):
     class CategoryType(models.TextChoices):
         HERITAGE = "heritage", "Heritage"
         NATURE = "nature", "Nature"
-        RELIGIOUS = "religious", "Religious"
+        SPIRITUAL = "spiritual", "Spiritual"
         ADVENTURE = "adventure", "Adventure"
+        BEACH = "beach", "Beach"
+        CULTURE = "culture", "Culture"
+        WILDLIFE = "wildlife", "Wildlife"
 
     name = models.CharField(max_length=50, choices=CategoryType.choices, unique=True)
     slug = models.SlugField(max_length=50, unique=True, blank=True)
@@ -33,6 +36,7 @@ class State(models.Model):
     description = models.TextField(blank=True)
     capital = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to="states/", blank=True, null=True)
+    image_url = models.URLField(max_length=1000, blank=True, help_text="Direct URL if not uploaded locally")
 
     class Meta:
         ordering = ["name"]
@@ -110,7 +114,10 @@ class PlaceImage(models.Model):
     place = models.ForeignKey(
         TouristPlace, on_delete=models.CASCADE, related_name="images"
     )
-    image = models.ImageField(upload_to="places/")
+    image = models.ImageField(upload_to="places/", blank=True, null=True)
+    image_url = models.URLField(
+        max_length=1000, blank=True, help_text="Direct URL if not uploaded locally"
+    )
     caption = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
     order = models.PositiveSmallIntegerField(default=0)

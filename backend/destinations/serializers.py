@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import serializers
 
 from .models import Category, City, PlaceImage, State, TouristPlace
@@ -24,6 +25,8 @@ class PlaceImageSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.image.url)
             return obj.image.url
+        if obj.image_url:
+            return obj.image_url
         return None
 
 
@@ -50,6 +53,8 @@ class StateListSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.image.url)
             return obj.image.url
+        if obj.image_url:
+            return obj.image_url
         return None
 
 
@@ -60,7 +65,7 @@ class StateDetailSerializer(StateListSerializer):
         fields = StateListSerializer.Meta.fields + ["cities"]
 
     def get_cities(self, obj):
-        cities = obj.cities.all()
+        cities = obj.cities.annotate(place_count=Count("places"))
         return CityListSerializer(cities, many=True, context=self.context).data
 
 
@@ -79,6 +84,7 @@ class TouristPlaceListSerializer(serializers.ModelSerializer):
     state_slug = serializers.CharField(source="state.slug", read_only=True)
     city_name = serializers.CharField(source="city.name", read_only=True)
     categories = CategorySerializer(many=True, read_only=True)
+    images = PlaceImageSerializer(many=True, read_only=True)
     primary_image = serializers.SerializerMethodField()
 
     class Meta:
@@ -96,6 +102,7 @@ class TouristPlaceListSerializer(serializers.ModelSerializer):
             "is_featured",
             "is_verified",
             "primary_image",
+            "images",
         ]
 
     def get_primary_image(self, obj):
@@ -130,3 +137,51 @@ class TouristPlaceDetailSerializer(TouristPlaceListSerializer):
         if not obj.nearby_attractions:
             return []
         return [line.strip() for line in obj.nearby_attractions.splitlines() if line.strip()]
+
+
+class TouristPlaceWriteSerializer(serializers.ModelSerializer):
+    state_id = serializers.PrimaryKeyRelatedField(
+        queryset=State.objects.all(), source="state", write_only=True
+    )
+    city_id = serializers.PrimaryKeyRelatedField(
+        queryset=City.objects.all(), source="city", write_only=True, required=False, allow_null=True
+    )
+    category_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source="categories", many=True, write_only=True, required=False
+    )
+    image_url = serializers.URLField(write_only=True, required=False, allow_blank=True)
+
+    class Meta:
+        model = TouristPlace
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "state_id",
+            "city_id",
+            "category_ids",
+            "description",
+            "historical_significance",
+            "best_time_to_visit",
+            "entry_fee",
+            "timings",
+            "location_map_url",
+            "is_featured",
+            "is_verified",
+            "image_url",
+        ]
+
+    def create(self, validated_data):
+        image_url = validated_data.pop("image_url", None)
+        categories = validated_data.pop("categories", [])
+        place = TouristPlace.objects.create(**validated_data)
+        if categories:
+            place.categories.set(categories)
+        if image_url:
+            PlaceImage.objects.create(
+                place=place,
+                image_url=image_url,
+                is_primary=True,
+                caption=place.name
+            )
+        return place

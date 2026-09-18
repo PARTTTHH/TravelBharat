@@ -1,189 +1,237 @@
+import os
+import importlib
 from django.core.management.base import BaseCommand
-
 from destinations.models import Category, City, State, TouristPlace
 
+# -----------------------------------------------------------------------
+# Category Consolidation Map
+# Maps every sub-tag used in seed data files → one of the 7 primary categories
+# Primary slugs (heritage, nature, spiritual, adventure, beach, culture,
+# wildlife) pass through directly; sub-tags get remapped here.
+# -----------------------------------------------------------------------
+CATEGORY_MAP = {
+    # Heritage -------------------------------------------------------
+    "fort": "heritage",
+    "palace": "heritage",
+    "monument": "heritage",
+    "ruins": "heritage",
+    "architecture": "heritage",
+    "memorial": "heritage",
+    "caves": "heritage",
+    "museum": "heritage",
+    "landmark": "heritage",
+    "unesco": "heritage",
+    "archaeological": "heritage",
+    "history": "heritage",
+    # Nature ---------------------------------------------------------
+    "lakes": "nature",
+    "lake": "nature",
+    "waterfall": "nature",
+    "river": "nature",
+    "river_island": "nature",
+    "backwaters": "nature",
+    "eco_tourism": "nature",
+    "coastal": "nature",
+    "gardens": "nature",
+    "botanical": "nature",
+    "viewpoint": "nature",
+    "geological_wonder": "nature",
+    "national_park": "nature",
+    "island": "nature",
+    "high_altitude": "nature",
+    # Spiritual ------------------------------------------------------
+    "temple": "spiritual",
+    "gurdwara": "spiritual",
+    "mosque": "spiritual",
+    "church": "spiritual",
+    "monastery": "spiritual",
+    "pilgrimage": "spiritual",
+    # Adventure ------------------------------------------------------
+    "desert": "adventure",
+    "border": "adventure",
+    "trekking": "adventure",
+    "hiking": "adventure",
+    "water_sports": "adventure",
+    # Beach ----------------------------------------------------------
+    "beach": "beach",
+    "marine": "beach",
+    "ocean": "beach",
+    # Culture --------------------------------------------------------
+    "culture": "culture",
+    "art": "culture",
+    "walking_tour": "culture",
+    "engineering": "culture",
+    "modern": "culture",
+    "astronomy": "culture",
+    "leisure": "culture",
+    "iconic": "culture",
+    "festival": "culture",
+    "market": "culture",
+    "photography": "culture",
+    # Wildlife -------------------------------------------------------
+    "wildlife": "wildlife",
+    "bird_watching": "wildlife",
+}
 
-SAMPLE_DATA = [
-    {
-        "state": {
-            "name": "Rajasthan",
-            "capital": "Jaipur",
-            "description": "The Land of Kings — forts, palaces, and desert landscapes.",
-        },
-        "cities": [
-            {
-                "name": "Jaipur",
-                "places": [
-                    {
-                        "name": "Amber Fort",
-                        "categories": ["heritage"],
-                        "description": "A magnificent hilltop fort known for its artistic Hindu-style architecture, mirror work, and panoramic views of Maota Lake.",
-                        "historical_significance": "Built by Raja Man Singh in the 16th century, Amber Fort was the capital of the Kachwaha Rajputs before Jaipur.",
-                        "best_time_to_visit": "October to March",
-                        "entry_fee": "₹100 (Indians), ₹500 (Foreigners)",
-                        "timings": "8:00 AM – 5:30 PM",
-                        "location_map_url": "https://maps.google.com/?q=Amber+Fort+Jaipur",
-                        "nearby_attractions": "Jaigarh Fort\nPanna Meena ka Kund\nJal Mahal",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                    {
-                        "name": "Hawa Mahal",
-                        "categories": ["heritage"],
-                        "description": "The iconic Palace of Winds with 953 jharokhas, built so royal women could observe street festivals without being seen.",
-                        "best_time_to_visit": "October to March",
-                        "entry_fee": "₹50 (Indians), ₹200 (Foreigners)",
-                        "timings": "9:00 AM – 4:30 PM",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                ],
-            },
-            {
-                "name": "Udaipur",
-                "places": [
-                    {
-                        "name": "City Palace",
-                        "categories": ["heritage"],
-                        "description": "A sprawling palace complex on the banks of Lake Pichola, showcasing Rajasthani and Mughal architecture.",
-                        "best_time_to_visit": "September to March",
-                        "entry_fee": "₹300 (Indians), ₹700 (Foreigners)",
-                        "timings": "9:30 AM – 5:30 PM",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        "state": {
-            "name": "Kerala",
-            "capital": "Thiruvananthapuram",
-            "description": "God's Own Country — backwaters, beaches, and lush greenery.",
-        },
-        "cities": [
-            {
-                "name": "Alleppey",
-                "places": [
-                    {
-                        "name": "Alleppey Backwaters",
-                        "categories": ["nature"],
-                        "description": "A network of tranquil canals, lagoons, and lakes best explored by traditional houseboats.",
-                        "best_time_to_visit": "November to February",
-                        "entry_fee": "Houseboat packages from ₹6,000",
-                        "timings": "Open 24 hours",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                ],
-            },
-            {
-                "name": "Munnar",
-                "places": [
-                    {
-                        "name": "Eravikulam National Park",
-                        "categories": ["nature", "adventure"],
-                        "description": "Home to the endangered Nilgiri Tahr and the blooming Neelakurinji flowers that cover the hills every 12 years.",
-                        "best_time_to_visit": "September to November, January to March",
-                        "entry_fee": "₹125 (Indians), ₹420 (Foreigners)",
-                        "timings": "7:00 AM – 4:00 PM",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        "state": {
-            "name": "Uttar Pradesh",
-            "capital": "Lucknow",
-            "description": "Home to the Taj Mahal and rich Mughal heritage along the Ganges.",
-        },
-        "cities": [
-            {
-                "name": "Agra",
-                "places": [
-                    {
-                        "name": "Taj Mahal",
-                        "categories": ["heritage", "religious"],
-                        "description": "An ivory-white marble mausoleum and UNESCO World Heritage Site, built by Shah Jahan in memory of Mumtaz Mahal.",
-                        "historical_significance": "Completed in 1653, the Taj Mahal is considered the finest example of Mughal architecture.",
-                        "best_time_to_visit": "October to March",
-                        "entry_fee": "₹50 (Indians), ₹1,100 (Foreigners)",
-                        "timings": "6:00 AM – 6:30 PM (closed Fridays)",
-                        "location_map_url": "https://maps.google.com/?q=Taj+Mahal+Agra",
-                        "nearby_attractions": "Agra Fort\nMehtab Bagh\nItimad-ud-Daulah",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                ],
-            },
-            {
-                "name": "Varanasi",
-                "places": [
-                    {
-                        "name": "Kashi Vishwanath Temple",
-                        "categories": ["religious"],
-                        "description": "One of the most sacred Hindu temples dedicated to Lord Shiva, located on the western bank of the Ganges.",
-                        "best_time_to_visit": "October to March",
-                        "entry_fee": "Free",
-                        "timings": "3:00 AM – 11:00 PM",
-                        "is_featured": True,
-                        "is_verified": True,
-                    },
-                ],
-            },
-        ],
-    },
-]
+# The 7 valid primary category slugs
+PRIMARY_CATEGORIES = {
+    "heritage", "nature", "spiritual", "adventure", "beach", "culture", "wildlife"
+}
+
+# Recognized Union Territories
+UNION_TERRITORIES = {
+    "Andaman and Nicobar Islands",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Delhi",
+    "Jammu and Kashmir",
+    "Ladakh",
+    "Lakshadweep",
+    "Puducherry",
+}
+
+
+def resolve_categories(raw_slugs):
+    """
+    Given a list of raw slugs from a seed data file, returns a set of valid primary category slugs.
+    """
+    resolved = set()
+    for slug in raw_slugs:
+        slug_clean = slug.strip().lower()
+        if slug_clean in PRIMARY_CATEGORIES:
+            resolved.add(slug_clean)
+        elif slug_clean in CATEGORY_MAP:
+            resolved.add(CATEGORY_MAP[slug_clean])
+    return resolved
+
+
+def load_all_seed_data():
+    """
+    Dynamically loads DATA dictionaries from all Python files in the seed_data folder.
+    """
+    seed_dir = os.path.join(os.path.dirname(__file__), "seed_data")
+    sample_data = []
+
+    for fname in sorted(os.listdir(seed_dir)):
+        if fname.endswith(".py") and fname != "__init__.py":
+            mod_name = fname[:-3]
+            try:
+                mod = importlib.import_module(f"destinations.management.commands.seed_data.{mod_name}")
+                if hasattr(mod, "DATA"):
+                    sample_data.append((mod_name, getattr(mod, "DATA")))
+            except Exception as e:
+                print(f"Error loading {fname}: {e}")
+
+    return sample_data
 
 
 class Command(BaseCommand):
-    help = "Seed sample states, cities, and tourist places for development"
+    help = "Seed all 28 states and 8 Union Territories with cities and tourist places"
 
     def handle(self, *args, **options):
+        # Step 1: Ensure the 7 primary categories exist in DB
         from destinations.management.commands.seed_categories import Command as SeedCategories
-
         SeedCategories().handle()
 
-        place_count = 0
+        sample_data = load_all_seed_data()
+        self.stdout.write(self.style.NOTICE(f"\nLoaded {len(sample_data)} state/UT seed modules."))
 
-        for entry in SAMPLE_DATA:
-            state_data = entry["state"]
-            state, _ = State.objects.get_or_create(
-                name=state_data["name"],
+        place_count = 0
+        state_count = 0
+        city_count = 0
+
+        for mod_name, entry in sample_data:
+            state_data = entry.get("state", {})
+            state_name = state_data.get("name", "").strip()
+            if not state_name:
+                continue
+
+            is_ut = state_data.get("is_union_territory", state_name in UNION_TERRITORIES)
+
+            state, state_created = State.objects.get_or_create(
+                name=state_name,
                 defaults={
                     "capital": state_data.get("capital", ""),
                     "description": state_data.get("description", ""),
+                    "is_union_territory": is_ut,
                 },
             )
+            # Update fields if already existing
+            if not state_created:
+                updated = False
+                if state.is_union_territory != is_ut:
+                    state.is_union_territory = is_ut
+                    updated = True
+                if not state.capital and state_data.get("capital"):
+                    state.capital = state_data.get("capital")
+                    updated = True
+                if not state.description and state_data.get("description"):
+                    state.description = state_data.get("description")
+                    updated = True
+                if updated:
+                    state.save()
 
-            for city_entry in entry["cities"]:
-                city, _ = City.objects.get_or_create(
-                    name=city_entry["name"],
+            if state_created:
+                state_count += 1
+            
+            label = "UT" if is_ut else "State"
+            self.stdout.write(f"\n>> [{label}] {state.name}")
+
+            for city_entry in entry.get("cities", []):
+                city_name = city_entry.get("name", "").strip()
+                if not city_name:
+                    continue
+
+                city, city_created = City.objects.get_or_create(
+                    name=city_name,
                     state=state,
                 )
+                if city_created:
+                    city_count += 1
 
-                for raw_place in city_entry["places"]:
+                for raw_place in city_entry.get("places", []):
                     place_data = raw_place.copy()
-                    category_slugs = place_data.pop("categories", [])
+                    raw_slugs = place_data.pop("categories", [])
+
                     place, created = TouristPlace.objects.get_or_create(
                         name=place_data["name"],
                         state=state,
                         defaults={**place_data, "city": city},
                     )
+
+                    # Update place city / attributes if needed
+                    if not created:
+                        if place.city != city:
+                            place.city = city
+                            place.save()
+
+                    # Set categories
+                    primary_slugs = resolve_categories(raw_slugs)
+                    if primary_slugs:
+                        cats = Category.objects.filter(slug__in=primary_slugs)
+                        place.categories.set(cats)
+                    else:
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f"  [!] No category resolved for: {place.name} (raw: {raw_slugs})"
+                            )
+                        )
+
                     if created:
                         place_count += 1
-                        categories = Category.objects.filter(slug__in=category_slugs)
-                        place.categories.set(categories)
                         self.stdout.write(
-                            self.style.SUCCESS(f"  + {place.name} ({city.name})")
+                            self.style.SUCCESS(
+                                f"  + {place.name} ({city.name}) [{', '.join(primary_slugs) or 'none'}]"
+                            )
+                        )
+                    else:
+                        self.stdout.write(
+                            f"  * {place.name} ({city.name}) [{', '.join(primary_slugs) or 'none'}]"
                         )
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"\nSample data ready! {place_count} places added."
+                f"\nDone! Processed {len(sample_data)} States/UTs. "
+                f"({state_count} new states, {city_count} new cities, {place_count} new places added)."
             )
         )
