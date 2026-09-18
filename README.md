@@ -252,7 +252,7 @@ erDiagram
 ### Step 1: Clone & Configure Environment
 
 ```bash
-git clone https://github.com/your-username/TravelBharat.git
+git clone https://github.com/PARTTTHH/TravelBharat.git
 cd TravelBharat
 ```
 
