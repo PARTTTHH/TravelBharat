@@ -15,22 +15,43 @@ _Unified Mentor Internship Project • Built with Django, PostgreSQL, React (Vit
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0+-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0+-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+<br/>
+[![Live Website](https://img.shields.io/badge/Live_Website-travel--bharat--theta--five.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://travel-bharat-theta-five.vercel.app/)
+[![Live Backend API](https://img.shields.io/badge/Live_API-Render_Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://travelbharat-backend-upcp.onrender.com/api/)
 
 </div>
 
 ---
 
+> 🚀 **Live Production Deployment**:  
+> • **Frontend Web Application**: [https://travel-bharat-theta-five.vercel.app](https://travel-bharat-theta-five.vercel.app)  
+> • **Backend REST API**: [https://travelbharat-backend-upcp.onrender.com/api/](https://travelbharat-backend-upcp.onrender.com/api/)  
+> • **Database**: Managed Cloud PostgreSQL (Render)  
+> • **Admin Credentials**: `admin` / `admin123`
+
+---
+
 ## 📌 Table of Contents
 
-1. [Project Overview](#-project-overview)
-2. [Visual Showcase & Gallery](#-visual-showcase--gallery)
-3. [Key Features](#-key-features)
-4. [Tech Stack](#-tech-stack)
-5. [Database Architecture & Schema](#-database-architecture--schema)
-6. [API Endpoints Reference](#-api-endpoints-reference)
-7. [Installation & Setup Guide](#-installation--setup-guide)
-8. [Project Structure](#-project-structure)
-9. [Author & Credits](#-author--credits)
+1. [Live Production Deployment](#-live-production-deployment)
+2. [Project Overview](#-project-overview)
+3. [Visual Showcase & Gallery](#-visual-showcase--gallery)
+4. [Key Features](#-key-features)
+5. [Tech Stack](#-tech-stack)
+6. [Database Architecture & Schema](#-database-architecture--schema)
+7. [API Endpoints Reference](#-api-endpoints-reference)
+8. [Installation & Setup Guide](#-installation--setup-guide)
+9. [Project Structure](#-project-structure)
+10. [Author & Credits](#-author--credits)
+
+## 🚀 Live Production Deployment
+
+| Service | Platform | Live URL | Status |
+| :--- | :--- | :--- | :--- |
+| **Frontend Web Application** | **Vercel** (Edge CDN) | [travel-bharat-theta-five.vercel.app](https://travel-bharat-theta-five.vercel.app/) | ![Active](https://img.shields.io/badge/Status-Live-success?style=flat-square) |
+| **Backend REST API** | **Render** (Gunicorn WSGI) | [travelbharat-backend-upcp.onrender.com/api/](https://travelbharat-backend-upcp.onrender.com/api/) | ![Active](https://img.shields.io/badge/Status-Live-success?style=flat-square) |
+| **Cloud Database** | **Render PostgreSQL 16** | Managed Cloud DB Instance | ![Active](https://img.shields.io/badge/Status-Connected-blue?style=flat-square) |
+| **Admin Moderation Panel** | React SPA / Django | [travel-bharat-theta-five.vercel.app/admin/dashboard](https://travel-bharat-theta-five.vercel.app/admin/dashboard) | `admin` / `admin123` |
 
 ---
 
