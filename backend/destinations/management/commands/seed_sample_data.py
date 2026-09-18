@@ -235,3 +235,33 @@ class Command(BaseCommand):
                 f"({state_count} new states, {city_count} new cities, {place_count} new places added)."
             )
         )
+
+        # Step 3: Ensure Superuser / Admin account exists for Cloud & Local deployment
+        from django.contrib.auth.models import User
+
+        admin_username = os.environ.get("DJANGO_SUPERUSER_USERNAME", "admin").strip() or "admin"
+        admin_password = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "admin123").strip() or "admin123"
+        admin_email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "admin@travelbharat.local").strip()
+
+        admin_user, created_admin = User.objects.get_or_create(
+            username=admin_username,
+            defaults={
+                "email": admin_email,
+                "is_staff": True,
+                "is_superuser": True,
+            },
+        )
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.set_password(admin_password)
+        admin_user.save()
+
+        if created_admin:
+            self.stdout.write(
+                self.style.SUCCESS(f"\n[+] Created Admin Superuser: '{admin_username}' (Password configured).")
+            )
+        else:
+            self.stdout.write(
+                self.style.SUCCESS(f"\n[*] Verified and updated Admin Superuser: '{admin_username}' (Password updated).")
+            )
+
