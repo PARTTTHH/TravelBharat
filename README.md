@@ -166,62 +166,52 @@ Clean brand footer featuring directory links, thematic exploration categories, t
 
 ```mermaid
 erDiagram
-    STATE ||--o{ CITY : contains
-    STATE ||--o{ TOURIST_PLACE : has
-    CITY ||--o{ TOURIST_PLACE : locates
-    TOURIST_PLACE }o--o{ CATEGORY : tagged_with
-    TOURIST_PLACE ||--o{ PLACE_IMAGE : includes
+    STATE ||--o{ CITY : "contains"
+    STATE ||--o{ TOURIST_PLACE : "contains"
+    CITY ||--o{ TOURIST_PLACE : "locates"
+    CATEGORY ||--o{ TOURIST_PLACE : "categorizes"
+    TOURIST_PLACE ||--o{ PLACE_IMAGE : "has"
 
     STATE {
         int id PK
         string name
-        string slug UK
+        string slug
         string capital
         boolean is_union_territory
-        text description
         string image_url
     }
 
     CITY {
         int id PK
         string name
-        string slug UK
+        string slug
         int state_id FK
-        text description
     }
 
     CATEGORY {
         int id PK
         string name
-        string slug UK
-        text description
+        string slug
     }
 
     TOURIST_PLACE {
         int id PK
         string name
-        string slug UK
+        string slug
         int state_id FK
         int city_id FK
-        text description
-        text historical_significance
         string best_time_to_visit
         string entry_fee
         string timings
-        string location_map_url
         boolean is_featured
         boolean is_verified
-        datetime created_at
-        datetime updated_at
     }
 
     PLACE_IMAGE {
         int id PK
         int place_id FK
         string image_url
-        string caption
         boolean is_primary
-        int order
     }
 ```
 
